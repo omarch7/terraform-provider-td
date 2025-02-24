@@ -25,7 +25,7 @@ func (d *treasureDataSource) Configure(_ context.Context, req datasource.Configu
 }
 
 func (d *treasureDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_td"
+	resp.TypeName = req.ProviderTypeName + "_folders"
 }
 
 func (d *treasureDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
