@@ -9,3 +9,7 @@ terraform {
 provider "td" {}
 
 data "td_folders" "example" {}
+
+output "example_folders" {
+  value = data.td_folders.example
+}
