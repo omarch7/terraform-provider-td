@@ -15,8 +15,6 @@ type FolderAttributes struct {
 	AudienceId  string `json:"audience_id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	CreatedAt   string `json:"createdAt"`
-	UpdatedAt   string `json:"updatedAt"`
 }
 
 type FolderRelationships struct {

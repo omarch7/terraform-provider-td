@@ -125,7 +125,7 @@ func (p *treasureDataProvider) Configure(ctx context.Context, req provider.Confi
 
 	ctx = tflog.SetField(ctx, "treasure_data_host", host)
 	ctx = tflog.SetField(ctx, "treasure_data_apikey", apikey)
-    ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "treasure_data_apikey")
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "treasure_data_apikey")
 
 	tflog.Debug(ctx, "Creating Treasure Data API Client")
 
@@ -149,6 +149,7 @@ func (p *treasureDataProvider) Configure(ctx context.Context, req provider.Confi
 func (p *treasureDataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewFoldersDataSource,
+		NewParentSegmentsDataSource,
 	}
 }
 

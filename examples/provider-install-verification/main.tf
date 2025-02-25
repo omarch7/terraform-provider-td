@@ -8,8 +8,8 @@ terraform {
 
 provider "td" {}
 
-data "td_folders" "example" {}
+data "td_parent_segments" "all" {}
 
-output "example_folders" {
-  value = data.td_folders.example
+output "all_parent_segments" {
+  value = data.td_parent_segments.all
 }
