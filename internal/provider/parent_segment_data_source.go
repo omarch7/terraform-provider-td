@@ -100,7 +100,7 @@ func (d *parentSegmentsDataSource) Read(ctx context.Context, req datasource.Read
 			ID:             types.StringValue(parent_segment.ID),
 			Name:           types.StringValue(parent_segment.Attributes.Name),
 			Description:    types.StringValue(parent_segment.Attributes.Description),
-			ParentFolderId: types.StringValue(parent_segment.Relationships.ParentFolder.Data.Id),
+			ParentFolderId: types.StringValue(parent_segment.Relationships.ParentFolder.Data.ID),
 		})
 	}
 

@@ -1,10 +1,10 @@
 package models
 
-type ParentFolder struct {
-	Data FolderData `json:"data"`
+type Relationship struct {
+	Data RelationshipData `json:"data"`
 }
 
-type FolderData struct {
-	Id   string `json:"id"`
+type RelationshipData struct {
+	ID   string `json:"id"`
 	Type string `json:"type"`
 }

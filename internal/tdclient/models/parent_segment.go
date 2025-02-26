@@ -17,6 +17,5 @@ type ParentSegmentAttributes struct {
 }
 
 type ParentSegmentRelationships struct {
-	ParentFolder ParentFolder `json:"parentFolder"`
+	ParentFolder Relationship `json:"parentFolder"`
 }
-

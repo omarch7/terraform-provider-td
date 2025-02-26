@@ -148,11 +148,12 @@ func (p *treasureDataProvider) Configure(ctx context.Context, req provider.Confi
 
 func (p *treasureDataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewFoldersDataSource,
 		NewParentSegmentsDataSource,
 	}
 }
 
 func (p *treasureDataProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		NewFolderResource,
+	}
 }
