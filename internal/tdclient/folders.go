@@ -75,3 +75,30 @@ func (c *Client) GetFolder(id string) (*models.Folder, error) {
 
 	return &folder.Data, nil
 }
+
+func (c *Client) UpdateFolder(folder models.Folder) (*models.Folder, error) {
+	reqBody, err := json.Marshal(folder)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/entities/folders/%s", c.HostURL, folder.ID), bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, err
+	}
+
+    req.Header.Set("Content-Type", "application/json")
+
+    body, err := c.doRequest(req)
+    if err != nil {
+        return nil, fmt.Errorf("error updating folder: %s", err)
+    }
+
+    updatedFolderResponse := &models.FolderReponse{}
+    err = json.Unmarshal(body, updatedFolderResponse)
+    if err != nil {
+        return nil, err
+    }
+
+    return &updatedFolderResponse.Data, nil
+}

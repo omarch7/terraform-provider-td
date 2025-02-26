@@ -6,6 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"terraform-provider-td/internal/tdclient"
@@ -61,6 +63,9 @@ func (r *folderResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -156,7 +161,52 @@ func (r *folderResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 }
 
-func (r *folderResource) Update(_ context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *folderResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan folderResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var folder = models.Folder{
+		ID:   plan.ID.ValueString(),
+		Type: "folder-segment",
+		Attributes: models.FolderAttributes{
+			Name:        plan.Name.ValueString(),
+			Description: plan.Description.ValueString(),
+		},
+		Relationships: models.FolderRelationships{
+			ParentFolder: models.Relationship{
+				Data: models.RelationshipData{
+					ID:   plan.ParentFolderID.ValueString(),
+					Type: "folder-segment",
+				},
+			},
+		},
+	}
+
+	updatedFolder, err := r.client.UpdateFolder(folder)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error updating folder",
+			fmt.Sprintf("Could not update folder, unexpected error: %s, %s", err, plan.ID.ValueString()),
+		)
+		return
+	}
+
+	plan.ID = types.StringValue(updatedFolder.ID)
+	plan.Name = types.StringValue(updatedFolder.Attributes.Name)
+	plan.Description = types.StringValue(updatedFolder.Attributes.Description)
+	plan.ParentFolderID = types.StringValue(updatedFolder.Relationships.ParentFolder.Data.ID)
+	plan.CreatedAt = types.StringValue(updatedFolder.Attributes.CreatedAt)
+	plan.UpdatedAt = types.StringValue(updatedFolder.Attributes.UpdatedAt)
+
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *folderResource) Delete(_ context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
