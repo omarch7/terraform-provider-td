@@ -47,31 +47,31 @@ func (c *Client) CreateFolder(folder models.Folder) (*models.Folder, error) {
 		return nil, err
 	}
 
-	newFolder := &models.Folder{}
-	err = json.Unmarshal(body, newFolder)
+	newFolderResponse := &models.FolderReponse{}
+	err = json.Unmarshal(body, newFolderResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	return newFolder, nil
+	return &newFolderResponse.Data, nil
 }
 
 func (c *Client) GetFolder(id string) (*models.Folder, error) {
-    req, err := http.NewRequest("GET", fmt.Sprintf("%s/entities/folders/%s", c.HostURL, id), nil)
-    if err != nil {
-        return nil, err
-    }
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/entities/folders/%s", c.HostURL, id), nil)
+	if err != nil {
+		return nil, err
+	}
 
-    body, err := c.doRequest(req)
-    if err != nil {
-        return nil, err
-    }
+	body, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
 
-    folder := &models.Folder{}
-    err = json.Unmarshal(body, folder)
-    if err != nil {
-        return nil, err
-    }
+	folder := &models.FolderReponse{}
+	err = json.Unmarshal(body, folder)
+	if err != nil {
+		return nil, err
+	}
 
-    return folder, nil
+	return &folder.Data, nil
 }

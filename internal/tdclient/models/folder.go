@@ -4,6 +4,10 @@ type Folders struct {
 	Data []Folder `json:"data"`
 }
 
+type FolderReponse struct {
+	Data Folder `json:"data"`
+}
+
 type Folder struct {
 	ID            string              `json:"id,omitempty"`
 	Type          string              `json:"type"`
@@ -20,5 +24,5 @@ type FolderAttributes struct {
 }
 
 type FolderRelationships struct {
-	ParentFolder Relationship  `json:"parentFolder"`
+	ParentFolder Relationship `json:"parentFolder"`
 }
