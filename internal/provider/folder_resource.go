@@ -32,8 +32,6 @@ type folderResourceModel struct {
 	ParentFolderID types.String `tfsdk:"parent_folder_id"`
 	CreatedAt      types.String `tfsdk:"created_at"`
 	UpdatedAt      types.String `tfsdk:"updated_at"`
-	CreatedBy      types.String `tfsdk:"created_by"`
-	UpdatedBy      types.String `tfsdk:"updated_by"`
 }
 
 func (r *folderResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -59,7 +57,28 @@ func (r *folderResource) Metadata(_ context.Context, req resource.MetadataReques
 }
 
 func (r *folderResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{}
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+			},
+			"name": schema.StringAttribute{
+				Required: true,
+			},
+			"description": schema.StringAttribute{
+				Optional: true,
+			},
+			"parent_folder_id": schema.StringAttribute{
+				Required: true,
+			},
+			"created_at": schema.StringAttribute{
+				Computed: true,
+			},
+			"updated_at": schema.StringAttribute{
+				Computed: true,
+			},
+		},
+	}
 }
 
 func (r *folderResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -71,16 +90,15 @@ func (r *folderResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	var folder = models.Folder{
-		ID:   plan.ID.String(),
 		Type: "folder-segment",
 		Attributes: models.FolderAttributes{
-			Name:        plan.Name.String(),
-			Description: plan.Description.String(),
+			Name:        plan.Name.ValueString(),
+			Description: plan.Description.ValueString(),
 		},
 		Relationships: models.FolderRelationships{
 			ParentFolder: models.Relationship{
 				Data: models.RelationshipData{
-					ID:   plan.ParentFolderID.String(),
+					ID:   plan.ParentFolderID.ValueString(),
 					Type: "folder-segment",
 				},
 			},
@@ -99,8 +117,6 @@ func (r *folderResource) Create(ctx context.Context, req resource.CreateRequest,
 	plan.ID = types.StringValue(createdFolder.ID)
 	plan.CreatedAt = types.StringValue(createdFolder.Attributes.CreatedAt)
 	plan.UpdatedAt = types.StringValue(createdFolder.Attributes.UpdatedAt)
-	plan.CreatedBy = types.StringValue(createdFolder.Relationships.CreatedBy.Data.ID)
-	plan.UpdatedBy = types.StringValue(createdFolder.Relationships.UpdatedBy.Data.ID)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -109,7 +125,35 @@ func (r *folderResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 }
 
-func (r *folderResource) Read(_ context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *folderResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state folderResourceModel
+	diags := req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	folder, err := r.client.GetFolder(state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error reading folder",
+			fmt.Sprintf("Could not read folder, unexpected error: %s", err),
+		)
+		return
+	}
+
+	state.ID = types.StringValue(folder.ID)
+	state.Name = types.StringValue(folder.Attributes.Name)
+	state.Description = types.StringValue(folder.Attributes.Description)
+	state.ParentFolderID = types.StringValue(folder.Relationships.ParentFolder.Data.ID)
+	state.CreatedAt = types.StringValue(folder.Attributes.CreatedAt)
+	state.UpdatedAt = types.StringValue(folder.Attributes.UpdatedAt)
+
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *folderResource) Update(_ context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

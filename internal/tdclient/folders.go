@@ -55,3 +55,23 @@ func (c *Client) CreateFolder(folder models.Folder) (*models.Folder, error) {
 
 	return newFolder, nil
 }
+
+func (c *Client) GetFolder(id string) (*models.Folder, error) {
+    req, err := http.NewRequest("GET", fmt.Sprintf("%s/entities/folders/%s", c.HostURL, id), nil)
+    if err != nil {
+        return nil, err
+    }
+
+    body, err := c.doRequest(req)
+    if err != nil {
+        return nil, err
+    }
+
+    folder := &models.Folder{}
+    err = json.Unmarshal(body, folder)
+    if err != nil {
+        return nil, err
+    }
+
+    return folder, nil
+}

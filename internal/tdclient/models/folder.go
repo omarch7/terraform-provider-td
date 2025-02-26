@@ -21,6 +21,4 @@ type FolderAttributes struct {
 
 type FolderRelationships struct {
 	ParentFolder Relationship  `json:"parentFolder"`
-	CreatedBy    *Relationship `json:"createdBy,omitempty"`
-	UpdatedBy    *Relationship `json:"updatedBy,omitempty"`
 }
