@@ -10,6 +10,8 @@ import (
 )
 
 var (
+	// these will be set by the goreleaser configuration
+	// to appropriate values for the compiled binary.
 	version string = "dev"
 )
 
@@ -20,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "hellofresh.io/mcp/td",
+		Address: "github.com/omarch7/terraform-provider-td",
 		Debug:   debug,
 	}
 
