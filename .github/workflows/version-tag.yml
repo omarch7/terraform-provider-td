@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -24,8 +24,8 @@ jobs:
           echo "Branch name: $BRANCH_NAME"
 
           # Fetch latest tag
-          git fetch --tags
-          LATEST_TAG=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1 || echo "0.0.0")
+          git fetch --tags --force
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || echo "0.0.0")
           echo "Latest tag: $LATEST_TAG"
 
           # Parse latest tag
