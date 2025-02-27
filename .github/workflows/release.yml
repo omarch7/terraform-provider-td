@@ -39,12 +39,12 @@ jobs:
 
           echo "Current version: $MAJOR.$MINOR.$PATCH"
 
-          if [[ "$BRANCH_NAME" == "major/*" || $BRANCH_NAME == "feature/*" ]]; then
+          if [[ "$BRANCH_NAME" == major/* || $BRANCH_NAME == feature/* ]]; then
             echo "Bumping major version"
             NEW_MAJOR=$((MAJOR+1))
             NEW_MINOR=0
             NEW_PATCH=0
-          elif [[ "$BRANCH_NAME" == "minor/*" ]]; then
+          elif [[ "$BRANCH_NAME" == minor/* ]]; then
             echo "Bumping minor version"
             NEW_MAJOR=$MAJOR
             NEW_MINOR=$((MINOR+1))
