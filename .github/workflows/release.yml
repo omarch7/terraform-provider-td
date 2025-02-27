@@ -80,4 +80,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GA_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
-
+      # Generate SHA256SUMS file for Terraform Registry
+      - name: Generate SHA256SUMS
+        run: |
+          cd dist
+          find . -type f -name "terraform-provider-*" | sort | xargs sha256sum > SHA256SUMS
+          echo "SHA256SUMS file generated:"
+          cat SHA256SUMS
+      # Sign the checksums file with GPG
+      - name: Sign SHA256SUMS
+        run: |
+          cd dist
+          gpg --batch --local-user "${{ steps.import_gpg.outputs.fingerprint }}" --detach-sign SHA256SUMS
+          # Verify the signature was created properly
+          gpg --verify SHA256SUMS.sig SHA256SUMS
+          echo "SHA256SUMS.sig created and verified"
