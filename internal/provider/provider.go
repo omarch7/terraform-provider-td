@@ -10,8 +10,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-    "terraform-provider-td/internal/client"
+	"terraform-provider-td/internal/tdclient"
 )
 
 var (
@@ -57,6 +58,7 @@ func (p *treasureDataProvider) Schema(_ context.Context, _ provider.SchemaReques
 }
 
 func (p *treasureDataProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	tflog.Info(ctx, "Configure Treasure Data Client")
 	var config treasureDataProviderModel
 	diags := req.Config.Get(ctx, &config)
 	resp.Diagnostics.Append(diags...)
@@ -121,27 +123,37 @@ func (p *treasureDataProvider) Configure(ctx context.Context, req provider.Confi
 		return
 	}
 
-    client, err := client.NewClient()
-    if err != nil {
-        resp.Diagnostics.AddError(
-            "Unable to Create Treasure Data API Client",
-            "An unexpected error occurred when creating the Treasure Data API client. "+
-                "If the error is not clear, please contact the provider developers.\n\n"+
-                "Treasure Data Client Error: " + err.Error(),
-        )
-        return
-    }
+	ctx = tflog.SetField(ctx, "treasure_data_host", host)
+	ctx = tflog.SetField(ctx, "treasure_data_apikey", apikey)
+	ctx = tflog.MaskFieldValuesWithFieldKeys(ctx, "treasure_data_apikey")
 
-    resp.DataSourceData = client
-    resp.ResourceData = client
+	tflog.Debug(ctx, "Creating Treasure Data API Client")
+
+	client, err := tdclient.NewClient(&host, &apikey)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to Create Treasure Data API Client",
+			"An unexpected error occurred when creating the Treasure Data API client. "+
+				"If the error is not clear, please contact the provider developers.\n\n"+
+				"Treasure Data Client Error: "+err.Error(),
+		)
+		return
+	}
+
+	resp.DataSourceData = client
+	resp.ResourceData = client
+
+	tflog.Info(ctx, "Configured Treasure Data Client", map[string]any{"success": true})
 }
 
 func (p *treasureDataProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource {
-        NewTreasureDataSource,
-    }
+	return []func() datasource.DataSource{
+		NewParentSegmentsDataSource,
+	}
 }
 
 func (p *treasureDataProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		NewFolderResource,
+	}
 }
