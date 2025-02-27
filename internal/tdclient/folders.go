@@ -102,3 +102,17 @@ func (c *Client) UpdateFolder(folder models.Folder) (*models.Folder, error) {
 
     return &updatedFolderResponse.Data, nil
 }
+
+func (c *Client) DeleteFolder(id string) error {
+    req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/entities/folders/%s", c.HostURL, id), nil)
+    if err != nil {
+        return err
+    }
+
+    _, err = c.doRequest(req)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}

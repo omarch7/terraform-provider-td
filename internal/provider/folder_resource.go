@@ -209,5 +209,20 @@ func (r *folderResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 }
 
-func (r *folderResource) Delete(_ context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *folderResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+    var state folderResourceModel
+    diags := req.State.Get(ctx, &state)
+    resp.Diagnostics.Append(diags...)
+    if resp.Diagnostics.HasError() {
+        return
+    }
+
+    err := r.client.DeleteFolder(state.ID.ValueString())
+    if err != nil {
+        resp.Diagnostics.AddError(
+            "Error deleting folder",
+            fmt.Sprintf("Could not delete folder, unexpected error: %s", err),
+        )
+        return
+    }
 }
