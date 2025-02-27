@@ -22,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "github.com/omarch7/terraform-provider-td",
+		Address: "registry.terraform.io/omarch7/td",
 		Debug:   debug,
 	}
 
