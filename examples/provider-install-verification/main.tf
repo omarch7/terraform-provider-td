@@ -24,7 +24,7 @@ resource "td_folder" "child" {
   for_each = {
     for parent_segment in data.td_parent_segments.all.parent_segments : parent_segment.id => parent_segment
   }
-  name             = "1_TEST_TF_CHILD_UPDATED"
+  name             = "1_TEST_TF_CHILD"
   description      = "Test Description"
   parent_folder_id = td_folder.test[each.key].id
 }
